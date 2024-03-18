@@ -13,8 +13,9 @@ from sklearn.metrics import r2_score, mean_squared_error
 class SKPredModel:
     compiled_regexps = None
     tdf2predict = None
+    loaded_model = None
 
-    def __init__(self):
+    def __init__(self, model_path):
         """
         Here you initialize your model
         """
@@ -24,6 +25,7 @@ class SKPredModel:
         ]
         self.compiled_regexps = [re.compile(regexp) for regexp in regexp_time_list]
         self.tdf2predict = pd.DataFrame()
+        self.loaded_model = torch.load(model_path)
 
     
     def convert_time_to_seconds(self, element):
@@ -230,7 +232,6 @@ class SKPredModel:
             ),
             random_state=22,
         )
-        model = torch.load('saved_models/model.pth')
-        pred_test_df = model.predict(self.tdf2predict)
+        pred_test_df = self.loaded_model.predict(self.tdf2predict)
 
         return pd.Series(pred_test_df)
