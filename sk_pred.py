@@ -14,6 +14,8 @@ class SKPredModel:
     compiled_regexps = None
     tdf2predict = None
     loaded_model = None
+    feature_names = None
+    # train_df = None
 
     def __init__(self, model_path):
         """
@@ -26,6 +28,7 @@ class SKPredModel:
         self.compiled_regexps = [re.compile(regexp) for regexp in regexp_time_list]
         self.tdf2predict = pd.DataFrame()
         self.loaded_model = torch.load(model_path)
+        # self.train_df = pd.DataFrame()
 
     
     def convert_time_to_seconds(self, element):
@@ -36,6 +39,10 @@ class SKPredModel:
                     return (int(rsearch.group('days')) * 24 + int(rsearch.group('hours'))) * 3600 + int(rsearch.group('minutes')) * 60 + int(rsearch.group('seconds'))
                 except:
                     return int(rsearch.group('hours')) * 3600 + int(rsearch.group('minutes')) * 60 + int(rsearch.group('seconds'))
+    
+    @property
+    def model_keys(self) -> list():
+        return ((self.train_df).columns).to_list
 
     def prepare_df(self, test_df: pd.DataFrame, train_df: pd.DataFrame()) -> pd.DataFrame:
         """
@@ -192,6 +199,8 @@ class SKPredModel:
        'task_success', 'task_fail', 'task_timeout', 'ts2tf', 'ts2all',
        'median_elapsed', 'trust_degree', 'Month', 'percentile_20_elapsed',
        'percentile_90_elapsed']]
+       
+        self.train_df = train_df
 
         self.tdf2predict = test_df
         self.tdf2predict = self.tdf2predict.loc[:, ['UID', 'GID', 'Area', 'Partition', 'ReqNodes', 'ReqCPUS',
